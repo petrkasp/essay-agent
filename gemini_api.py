@@ -1,0 +1,79 @@
+from google import genai
+from google.genai import types
+import utils
+
+from typing import List, Tuple, Callable
+
+try:
+    from tokens import GOOGLE_API_KEY
+except ImportError:
+    raise NotImplementedError("Please create a tokens.py file and put your API key in it.")
+
+
+client = genai.Client(api_key=GOOGLE_API_KEY)
+
+
+grounding_tool = types.Tool(
+    google_search=types.GoogleSearch()
+)
+
+
+# https://ai.google.dev/gemini-api/docs/google-search#attributing_sources_with_inline_citations
+def add_citations(response) -> Tuple[str, List[str]]:
+    text = response.text
+    supports = response.candidates[0].grounding_metadata.grounding_supports
+    chunks = response.candidates[0].grounding_metadata.grounding_chunks
+
+    # Sort supports by end_index in descending order to avoid shifting issues when inserting.
+    sorted_supports = sorted(supports, key=lambda s: s.segment.end_index, reverse=True)
+
+    for support in sorted_supports:
+        # Note: There is an end_index field in the API response, but it inconsistent with the text.
+        # This method seems robust.
+        segment_text = support.segment.text
+        end_index = text.index(segment_text) + len(segment_text)
+        if support.grounding_chunk_indices:
+            # Create citation string like [1](link1)[2](link2)
+            citation_links = []
+            for i in support.grounding_chunk_indices:
+                if i < len(chunks):
+                    citation_links.append(f"[{i + 1}]")
+
+            citation_string = ", ".join(citation_links)
+            text = text[:end_index] + citation_string + text[end_index:]
+
+    uris = [utils.find_redirects(chunk.web.uri) for chunk in chunks]
+    text += "\n\n##Sources\n\n" + "\n".join(f"[{i + 1}] {uri}" for i, uri in enumerate(uris))
+
+    return text, uris
+
+
+def with_search(model: str, prompt: str, system_prompt: str) -> str:
+    config = types.GenerateContentConfig(
+        tools=[grounding_tool],
+        system_instruction=system_prompt
+    )
+
+    response = client.models.generate_content(
+        model=model,
+        contents=prompt,
+        config=config
+    )
+
+    result, uris = add_citations(response)
+    return result
+
+
+def with_tools(model: str, prompt: str, system_prompt: str, tools: List[Callable]):
+    config = types.GenerateContentConfig(
+        tools=[*tools],
+        system_instruction=system_prompt
+    )
+
+    response = client.models.generate_content(
+        model=model,
+        contents=prompt,
+        config=config
+    )
+
+    return response
