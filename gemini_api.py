@@ -48,7 +48,7 @@ def add_citations(response) -> Tuple[str, List[str]]:
 
     for support in sorted_supports:
         # Note: There is an end_index field in the API response,
-        # but it inconsistent with the text. This method seems robust.
+        # but is inconsistent with the text. This method seems robust.
         segment_text = support.segment.text
         end_index = text.index(segment_text) + len(segment_text)
 
