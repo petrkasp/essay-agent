@@ -1,18 +1,15 @@
 """Gemini API functions."""
 from typing import List, Tuple, Callable
+import os
 from google import genai
 from google.genai import types
+from dotenv import load_dotenv
 import utils
 
 
-try:
-    from tokens import GOOGLE_API_KEY
-except ImportError as e:
-    raise NotImplementedError(
-        "Please create a tokens.py file and put your API key in it.") from e
+load_dotenv()
 
-
-client = genai.Client(api_key=GOOGLE_API_KEY)
+client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
 grounding_tool = types.Tool(

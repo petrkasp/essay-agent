@@ -6,7 +6,7 @@ The essay agent writes essays and subsequently edits them based on feedback. It 
 ## How to run
 
 1. Install `requirements.txt`
-2. Create `tokens.py` in the root and insert your Gemini API key
+2. Create `.env` in the root and insert your Gemini API key
 
 ```
 GOOGLE_API_KEY = YOUR_KEY_HERE
