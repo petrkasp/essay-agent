@@ -90,9 +90,10 @@ def create_id(title: str) -> str:
     Returns:
         The new unique ID of a document.
     """
-    i = 1
-    document_id = title[:ID_MAX_LENGTH] + ".xml"
+    cleaned_title = re.sub(r"[^\w_. -]", "", title)
+    document_id = cleaned_title[:ID_MAX_LENGTH] + ".xml"
 
+    i = 1
     while (document_folder / document_id).exists():
         document_id = f"{title[:ID_MAX_LENGTH]}_{i}.xml"
         i += 1
