@@ -57,19 +57,19 @@ def get_paragraph_with_number(xml: ET.Element,
     return paragraphs
 
 
-def find_index(parent: ET.Element, find: ET.Element) -> int:
+def find_index(parent: ET.Element, target: ET.Element) -> int:
     """Find the 0-starting index of the given element in the parent element.
     If not found, raises a `ValueError`.
 
     Args:
         parent: The element in which to search.
-        find: The element to look for.
+        target: The element to look for.
 
     Returns:
-        The index of the `find` element inside the `parent` element.
+        The index of the `target` element inside the `parent` element.
     """
     for i, elem in enumerate(parent):
-        if elem is find:
+        if elem is target:
             return i
 
     raise ValueError("index not found in XML element")
@@ -100,7 +100,7 @@ def create_tools(xml: ET.Element) -> List[Callable]:
             new_text: The new text of the paragraph.
 
         Returns:
-            The new state of the entire document
+            The text of the entire document
             with the chosen paragraph rewritten.
         """
         try:
@@ -112,22 +112,21 @@ def create_tools(xml: ET.Element) -> List[Callable]:
 
         return to_string(xml)
 
-    def insert_paragraph(insert_after_number: int, text: str) -> str:
+    def insert_paragraph(prev_para_index: int, text: str) -> str:
         """Inserts a new paragraph after an existing paragraph.
         The new paragraph will assigned the number one higher than
         the largest paragraph number in the entire document.
 
         Args:
-            insert_after_number: The number of the paragraph after
+            prev_para_index: The number of the paragraph after
             which the new paragraph will be inserted.
             text: The text of the new paragraph.
 
         Returns:
-            The new state of the entire document
-            with the new paragraph inserted.
+            The text of the entire document with the new paragraph inserted.
         """
         try:
-            paragraph = get_paragraph_with_number(xml, insert_after_number)[0]
+            paragraph = get_paragraph_with_number(xml, prev_para_index)[0]
         except ValueError as e:
             return e.args[0]
 
@@ -152,8 +151,7 @@ def create_tools(xml: ET.Element) -> List[Callable]:
             paragraph_number: The number of the paragraph to delete.
 
         Returns:
-            The new state of the entire document
-            with the chosen paragraph deleted.
+            The text of the entire document with the chosen paragraph deleted.
         """
         try:
             paragraph = get_paragraph_with_number(xml, paragraph_number)[0]
@@ -180,8 +178,7 @@ def create_tools(xml: ET.Element) -> List[Callable]:
             the replacement is applied over the entire document.
 
         Returns:
-            The new state of the entire document
-            with the string replace applied.
+            The text of the entire document with the string replaced.
         """
         try:
             paragraphs = get_paragraph_with_number(xml, paragraph_number)
@@ -209,7 +206,7 @@ def create_tools(xml: ET.Element) -> List[Callable]:
             text: The text of the reply.
 
         Returns:
-            The new state of the entire document with the reply added.
+            The comments with the reply added.
         """
         comment = xml.find(f"comments/comment[@n='{comment_number}']")
         new_remark = ET.SubElement(comment, "editor")
