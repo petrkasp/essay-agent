@@ -9,7 +9,7 @@ The article should have the following properties:
 - written in a clear and engaging style
 - focus on readability and clarity
 - the language of the article should be in the same language as the prompt
-- length between 1000 and 2000 words
+- unless specified differently by the user, the length should be between 1000 and 2000 words
 - if not specified otherwise, focus on the linguistic aspects of the problem
 
 When using the Google Search tool, make sure that the sources are strongly credible, such as academic papers and books. The sources can be in any language.
@@ -41,3 +41,21 @@ Steps:
 
 In case a comment is highly ambiguous, ask a clarifying question using the reply tool and move to other comments.
 """  # noqa: E501
+
+
+def create_reviewer_system_prompt(additional_user_request: str = None) -> str:
+    """Creates a prompt for the reviewer
+    with optional additional requests by the user.
+
+    Args:
+        additional_user_request: Optional additional requests by the user.
+
+    Returns:
+        The prompt for the reviewer.
+    """
+    if additional_user_request:
+        return REVIEWER_SYSTEM_PROMPT + \
+            "\n\nAdditional user request:\n" + \
+            additional_user_request
+    else:
+        return REVIEWER_SYSTEM_PROMPT

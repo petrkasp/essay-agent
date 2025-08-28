@@ -13,14 +13,16 @@ GOOGLE_API_KEY = YOUR_KEY_HERE
 ```
 3. Run one of the following commands:
 ```
-python main.py --model gemini-2.5-pro --write "Your topic here"
+python main.py write --prompt "Your topic here"
 ```
 
 ```
-python main.py --model gemini-2.0-flash-lite --review path/to/document.xml
+python main.py --review path/to/document.xml
 ```
 
-While using the Free Tier Gemini API, one can easily encounter requests per minute (RPM) limits while using the `--review` command. 2.5 Pro [allows](https://ai.google.dev/gemini-api/docs/rate-limits#free-tier) 5 RPM, 2.5 Flash 10 RPM, 2.5 Flash-Lite 15 RPM, and 2.0 Flash-Lite 30 RPM. As the project uses the API's [automatic function calling](https://ai.google.dev/gemini-api/docs/function-calling?example=chart#automatic_function_calling_python_only), there is no straightforward way to limit the requests. (One very rudimentary way to circumvent this is to add breakpoints inside the tool functions and wait a while.)
+Optionally, specify a model with `--model`.
+
+While using the Free Tier Gemini API, one can easily encounter requests per minute (RPM) limits while using the `review` command. 2.5 Pro [allows](https://ai.google.dev/gemini-api/docs/rate-limits#free-tier) 5 RPM, 2.5 Flash 10 RPM, 2.5 Flash-Lite 15 RPM, and 2.0 Flash-Lite 30 RPM. As the project uses the API's [automatic function calling](https://ai.google.dev/gemini-api/docs/function-calling?example=chart#automatic_function_calling_python_only), there is no straightforward way to limit the requests. (One very rudimentary way to circumvent this is to add breakpoints inside the tool functions and wait a while.)
 
 
 ## Document structure

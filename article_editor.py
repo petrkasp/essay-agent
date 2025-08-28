@@ -1,7 +1,7 @@
 """Main functionalities."""
 from typing import Tuple
 import xml.etree.ElementTree as ET
-from resources import WRITER_SYSTEM_PROMPT, REVIEWER_SYSTEM_PROMPT
+from resources import WRITER_SYSTEM_PROMPT, create_reviewer_system_prompt
 from gemini_api import with_search, with_tools
 from google_docs_api_dummy import \
     create_document, create_revision, get_document
@@ -25,7 +25,8 @@ def write(model: str, prompt: str) -> str:
     return document_id
 
 
-def review(model: str, document_id: str) -> Tuple[str, str]:
+def review(model: str, document_id: str, additional_user_request: str = None
+           ) -> Tuple[str, str]:
     """Reviews and executes the edit requests in the given document.
 
     Args:
@@ -39,7 +40,9 @@ def review(model: str, document_id: str) -> Tuple[str, str]:
     document = get_document(document_id)
     xml = ET.fromstring(document)
     tools = tools_review.create_tools(xml)
-    response = with_tools(model, document, REVIEWER_SYSTEM_PROMPT, tools)
+    reviewer_system_prompt = \
+        create_reviewer_system_prompt(additional_user_request)
+    response = with_tools(model, document, reviewer_system_prompt, tools)
     new_document_id = create_revision(ET.ElementTree(xml), document_id)
     return new_document_id, response.text
 
